@@ -6,12 +6,15 @@
 int main() {
     Inv_Prb IP = Inv_Prb();
 
+    // Initial condition
+    double x0 = 1.;
+    IP.assign_x0(x0);
+
     // parameters
     double t_init         = 0.;
     double t_final        = 1.;
     double t_obs          = 1.;
     double dt             = .01;
-
     IP.assign_dt(dt);
 
     int n = round ((t_final - t_init) /dt);

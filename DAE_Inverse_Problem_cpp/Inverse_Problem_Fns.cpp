@@ -145,6 +145,9 @@ double Inv_Prb::Newton_Linear_solve(std::vector<double> & x, std::vector<double>
 void Inv_Prb::assign_true_m(double m){
     m_true = m;
     std::vector<double> x, y;
+    x.assign(N,0.);
+    y.assign(N,0.);
+    d.assign(N,0.);
     Forward_solver(x,y,m_true);
     Observation(x, d);
 };
@@ -166,7 +169,7 @@ void Inv_Prb::Initialize_system(std::vector<double> & x, std::vector<double> & y
     // forward system
     x.assign(N, 0.);
     y.assign(N, 0.);
-    x[0] = 1;
+    x[0] = x0;
 
     //adjoint system
     la.assign(N, 0.);

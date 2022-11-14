@@ -14,6 +14,7 @@ private:
     int N;
     double epislon_DAE = 1E-6;
     double m_true;
+    double x0;
     std::vector<double> d;
 
     // solve the adjoint problem
@@ -65,6 +66,7 @@ public:
     void assign_dt(double Dt){dt = Dt;};
     void assign_N(int numb_time_steps) {N = numb_time_steps;};
     void assign_DAE_tol(double tol){epislon_DAE = tol;};
+    void assign_x0(double X0){x0 = X0;};
     void assign_true_m(double m);
 
     double Newton_Solver(double m);

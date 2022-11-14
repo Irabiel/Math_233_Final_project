@@ -94,3 +94,7 @@ double w(double x,double y, double m, double la, double mu){
 double Fnew(double x, double y, double m, double la, double mu, double xh, double yh, double lah, double muh){
     return  (( lah * fm(x,y,m) + muh * gm(x,y,m) + la * ( fmx(x,y,m) * xh + fmy(x,y,m) * yh ) ) + mu * ( gmx(x,y,m) * xh + gmy(x,y,m) * yh ) );
 };
+
+double sign(double x){
+    return (x > 0) ? 1. : -1.;
+};

@@ -39,4 +39,7 @@ double gmm(double x, double y, double m);
 double w(double x,double y, double m, double la, double mu);
 double Fnew(double x, double y, double m, double la, double mu, double xh, double yh, double lah, double muh);
 
+// sign function
+double sign(double x);
+
 #endif //DAE_INVERSE_PROBLEM_CPP_NEEDED_FUNCTIONS_H

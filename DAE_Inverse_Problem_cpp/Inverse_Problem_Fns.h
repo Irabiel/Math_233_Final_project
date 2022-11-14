@@ -13,10 +13,12 @@ private:
     double dt;
     int N;
     double epislon_DAE = 1E-6;
+    double m_true;
+    std::vector<double> d;
 
     // solve the adjoint problem
     void Adjoint_solver(std::vector<double> & x, std::vector<double> & y, double m
-            , std::vector<double> & la, std::vector<double> & mu, std::vector<double> & d);
+            , std::vector<double> & la, std::vector<double> & mu);
 
     // solve the incremental state problem
     void Inc_state(std::vector<double> & x, std::vector<double> & y, double m
@@ -33,7 +35,7 @@ private:
             , std::vector<double> & xh, std::vector<double> & yh
             , std::vector<double> & lah, std::vector<double> & muh, double W, double Fn);
 // solve the newton linear system
-    double New_linear_solve(std::vector<double> & x, std::vector<double> & y, double m
+    double Newton_Linear_solve(std::vector<double> & x, std::vector<double> & y, double m
             , std::vector<double> & la, std::vector<double> & mu
             , std::vector<double> & xh, std::vector<double> & yh
             , std::vector<double> & lah, std::vector<double> & muh, double grad);
@@ -63,7 +65,9 @@ public:
     void assign_dt(double Dt){dt = Dt;};
     void assign_N(int numb_time_steps) {N = numb_time_steps;};
     void assign_DAE_tol(double tol){epislon_DAE = tol;};
+    void assign_true_m(double m);
 
+    double Newton_Solver(double m);
 };
 
 

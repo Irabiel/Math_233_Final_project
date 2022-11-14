@@ -5,7 +5,7 @@
 #include "Inverse_Problem_Fns.h"
 #include "Needed_functions.h"
 #include "math.h"
-
+#include <iostream>
 #include <stdlib.h>     /* srand, rand */
 
 Inv_Prb::Inv_Prb() {
@@ -44,7 +44,7 @@ void Inv_Prb::Forward_solver(std::vector<double> & x, std::vector<double> & y, d
 };
 
 void Inv_Prb::Adjoint_solver(std::vector<double> & x, std::vector<double> & y, double m
-                    , std::vector<double> & la, std::vector<double> & mu, std::vector<double> & d){
+                    , std::vector<double> & la, std::vector<double> & mu){
     la[la.size()-1] = 0;
     mu[mu.size()-1] = 0;
     // Backwards Euler
@@ -132,7 +132,7 @@ void Inv_Prb::Newton_update(std::vector<double> & x, std::vector<double> & y, do
     Fn *= dt;
 }
 
-double Inv_Prb::New_linear_solve(std::vector<double> & x, std::vector<double> & y, double m
+double Inv_Prb::Newton_Linear_solve(std::vector<double> & x, std::vector<double> & y, double m
         , std::vector<double> & la, std::vector<double> & mu
         , std::vector<double> & xh, std::vector<double> & yh
         , std::vector<double> & lah, std::vector<double> & muh, double grad){
@@ -141,6 +141,13 @@ double Inv_Prb::New_linear_solve(std::vector<double> & x, std::vector<double> & 
 
     return -(Fn + grad)/W;
 }
+
+void Inv_Prb::assign_true_m(double m){
+    m_true = m;
+    std::vector<double> x, y;
+    Forward_solver(x,y,m_true);
+    Observation(x, d);
+};
 
 void Inv_Prb::Observation(std::vector<double> & x, std::vector<double> & d){
     double noise_lvl = 0.02;
@@ -178,4 +185,69 @@ void Inv_Prb::Initialize_system(std::vector<double> & x, std::vector<double> & y
     muh.assign(N, 0.);
     lah[N-1] = 0.;
     muh[N-1] = 0.;
+}
+
+double Inv_Prb::Newton_Solver(double m) {
+
+    int Max_new_iter = 10;
+    int new_iter = 0;
+    int arm_it_max = 10;
+    int arm_it;
+    double mh = 0.01;
+    double err[Max_new_iter];
+    err[0] = abs(m - m_true);
+
+    double c = 1E-4;
+    double alpha;
+    bool line_search = true;
+    bool suff_dec = false;
+
+    std::vector<double> x,y,la,mu,xh,yh,lah,muh;
+    Initialize_system(x,y,la,mu,xh,yh,lah,muh);
+
+    double Jk,gnorm, grad, J;
+    while (new_iter < Max_new_iter) {
+        Forward_solver(x, y, m);
+        Adjoint_solver(x, y, m, la, mu);
+        Jk = cost(x, d);
+        Grad_eval(x, y, la, mu, m,gnorm, grad);
+
+        Inc_state(x, y, m, xh, yh, mh);
+        Inc_Adj(x, y, m, la, mu, xh, yh, mh, lah, muh);
+        mh = Newton_Linear_solve(x, y, m, la, mu, xh, yh, lah, muh, grad);
+
+        //line search
+        if (line_search)
+            if (sign(mh * grad) > 0){
+                alpha = 100.;
+                mh = -grad ;
+            }
+            else
+                alpha = 1.;
+
+        arm_it = 0;
+        while((~suff_dec) && (arm_it < arm_it_max)) {
+            Forward_solver(x, y, m + alpha * mh);
+            J = cost(x, d);
+            if (J < Jk + c * alpha * mh * grad) {
+                suff_dec = true;
+                m += alpha * mh;
+            }
+            else {
+                alpha *= 0.5;
+                arm_it += 1;
+            }
+        }
+
+        m += mh;
+
+        new_iter += 1;
+        err[new_iter] = abs(m - m_true);
+        std::cout << new_iter << " " <<  Jk << " " <<  abs(grad) << " " << abs(mh * grad) << " " << err[new_iter] << std::endl;
+
+        if (abs(grad) < 1E-4 || abs(mh * grad) < 1E-4) {
+            std::cout <<"Termiination reason: Norm of the gradient less than tolerance" << std::endl;
+            break;
+        }
+    }
 }

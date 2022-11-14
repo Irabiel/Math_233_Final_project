@@ -62,6 +62,7 @@ public:
 
     void assign_dt(double Dt){dt = Dt;};
     void assign_N(int numb_time_steps) {N = numb_time_steps;};
+    void assign_DAE_tol(double tol){epislon_DAE = tol;};
 
 };
 

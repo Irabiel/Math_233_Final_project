@@ -147,7 +147,7 @@ void Inv_Prb::Observation(std::vector<double> & x, std::vector<double> & d){
     double noise_vec;
 
     for (int i = 0; i < x.size(); i++){
-        noise_vec = noise_lvl * (rand() - 0.5) * 2.;
+        noise_vec = noise_lvl * ( (float) rand()/RAND_MAX - 0.5) * 2.;
         d[i] = noise_vec + x[i];
     }
 }
